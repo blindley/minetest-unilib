@@ -1,0 +1,3 @@
+[submodule "irrlicht"]
+	path = irrlicht
+	url = https://github.com/blindley/irrlicht-cmake.git

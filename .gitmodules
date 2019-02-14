@@ -1,3 +1,12 @@
 [submodule "irrlicht"]
 	path = irrlicht
 	url = https://github.com/blindley/irrlicht-cmake.git
+[submodule "zlib"]
+	path = zlib
+	url = https://github.com/madler/zlib
+[submodule "ogg"]
+	path = ogg
+	url = https://github.com/xiph/ogg
+[submodule "vorbis"]
+	path = vorbis
+	url = https://github.com/xiph/vorbis

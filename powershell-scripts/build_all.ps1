@@ -3,13 +3,13 @@ param(
 )
 
 $root = (Resolve-Path "$($PSScriptRoot)\..")
-$builddir_leaf = ($Generator -replace " ","-")
+$gen_builddir = ($Generator -replace " ","-")
 
 $Script:function_result = $true
 
 function make_builddir {
     param([String]$libname)
-    $builddir = "$($root)/build/$($builddir_leaf)/$($libname)"
+    $builddir = "$($root)/build/$($gen_builddir)/$($libname)"
     mkdir $builddir -Force | Out-Null
     if (-not (Test-Path $builddir)) {
         Write-Host "failed to make directory $($builddir)"
@@ -18,6 +18,15 @@ function make_builddir {
     }
 
     $Script:function_result = $builddir
+}
+
+function build_and_install {
+    param([String]$libname)
+    cmake --build . --config release --target install | Out-Null
+    $Script:function_result = $?
+    if (-not $Script:function_result) {
+        Write-Host "failed to build $($libname)"
+    }
 }
 
 function build_irrlicht {
@@ -34,11 +43,7 @@ function build_irrlicht {
         return
     }
 
-    $Script:function_result = cmake --build . --config release --target install
-
-    if (-not $Script:function_result) {
-        Write-Host "failed to build $($libname)" -ForegroundColor Red
-    }
+    build_and_install $libname
 }
 
 function build_zlib {
@@ -55,11 +60,7 @@ function build_zlib {
         return
     }
 
-    $Script:function_result = cmake --build . --config release --target install
-
-    if (-not $Script:function_result) {
-        Write-Host "failed to build $($libname)" -ForegroundColor Red
-    }
+    build_and_install $libname
 
     # undo zlib/CMakeLists.txt renaming zconf.h, to keep the repository unmodified
     Rename-Item "$($root)/$($libname)/zconf.h.included" zconf.h
@@ -80,11 +81,7 @@ function build_ogg {
         return
     }
 
-    $Script:function_result = cmake --build . --config release --target install
-
-    if (-not $Script:function_result) {
-        Write-Host "failed to build $($libname)" -ForegroundColor Red
-    }
+    build_and_install $libname
 }
     
 function build_vorbis {
@@ -93,7 +90,7 @@ function build_vorbis {
     $builddir = $Script:function_result
     cd $builddir
 
-    $ogg = "$($root)/build/$($builddir_leaf)/ogg/install"
+    $ogg = "$($root)/build/$($gen_builddir)/ogg/install"
 
     $Script:function_result = cmake "$($root)/$($libname)" -G"$($Generator)" `
         -DCMAKE_INSTALL_PREFIX="$($builddir)/install" `
@@ -106,11 +103,7 @@ function build_vorbis {
         return
     }
 
-    $Script:function_result = cmake --build . --config release --target install
-
-    if (-not $Script:function_result) {
-        Write-Host "failed to build $($libname)" -ForegroundColor Red
-    }
+    build_and_install $libname
 }
     
 function build_openal {
@@ -131,11 +124,7 @@ function build_openal {
         return
     }
 
-    $Script:function_result = cmake --build . --config release --target install
-
-    if (-not $Script:function_result) {
-        Write-Host "failed to build $($libname)" -ForegroundColor Red
-    }
+    build_and_install $libname
 }
     
 function build_sqlite3 {
@@ -152,11 +141,7 @@ function build_sqlite3 {
         return
     }
 
-    $Script:function_result = cmake --build . --config release --target install
-
-    if (-not $Script:function_result) {
-        Write-Host "failed to build $($libname)" -ForegroundColor Red
-    }
+    build_and_install $libname
 }
 
 function build_all {

@@ -7,136 +7,119 @@ $builddir_leaf = ($Generator -replace " ","-")
 
 $Script:function_result = $true
 
-function build_irrlicht {
-    $libroot = "irrlicht"
-    $builddir = "$($root)/build/$($builddir_leaf)/$($libroot)"
+function make_builddir {
+    param([String]$libname)
+    $builddir = "$($root)/build/$($builddir_leaf)/$($libname)"
     mkdir $builddir -Force | Out-Null
     if (-not (Test-Path $builddir)) {
         Write-Host "failed to make directory $($builddir)"
         $Script:function_result = $false
         return
     }
-    
+
+    $Script:function_result = $builddir
+}
+
+function build_irrlicht {
+    $libname = "irrlicht"
+    make_builddir $libname
+    $builddir = $Script:function_result
     cd $builddir
 
-    $Script:function_result = cmake "$($root)/$($libroot)" -G"$($Generator)" `
+    $Script:function_result = cmake "$($root)/$($libname)" -G"$($Generator)" `
         -DCMAKE_INSTALL_PREFIX="$($builddir)/install"
 
     if (-not $Script:function_result) {
-        Write-Host "failed to configure $($libroot)" -ForegroundColor Red
+        Write-Host "failed to configure $($libname)" -ForegroundColor Red
         return
     }
 
     $Script:function_result = cmake --build . --config release --target install
 
     if (-not $Script:function_result) {
-        Write-Host "failed to build $($libroot)" -ForegroundColor Red
+        Write-Host "failed to build $($libname)" -ForegroundColor Red
     }
 }
 
 function build_zlib {
-    $libroot = "zlib"
-    $builddir = "$($root)/build/$($builddir_leaf)/$($libroot)"
-    mkdir $builddir -Force | Out-Null
-    if (-not (Test-Path $builddir)) {
-        Write-Host "failed to make directory $($builddir)"
-        $Script:function_result = $false
-        return
-    }
-    
+    $libname = "zlib"
+    make_builddir $libname
+    $builddir = $Script:function_result
     cd $builddir
     
-    $Script:function_result = cmake "$($root)/$($libroot)" -G"$($Generator)" `
+    $Script:function_result = cmake "$($root)/$($libname)" -G"$($Generator)" `
     -DCMAKE_INSTALL_PREFIX="$($builddir)/install"
 
     if (-not $Script:function_result) {
-        Write-Host "failed to configure $($libroot)" -ForegroundColor Red
+        Write-Host "failed to configure $($libname)" -ForegroundColor Red
         return
     }
 
     $Script:function_result = cmake --build . --config release --target install
 
     if (-not $Script:function_result) {
-        Write-Host "failed to build $($libroot)" -ForegroundColor Red
+        Write-Host "failed to build $($libname)" -ForegroundColor Red
     }
 
     # undo zlib/CMakeLists.txt renaming zconf.h, to keep the repository unmodified
-    Rename-Item "$($root)/$($libroot)/zconf.h.included" zconf.h
+    Rename-Item "$($root)/$($libname)/zconf.h.included" zconf.h
 }
     
 function build_ogg {
-    $libroot = "ogg"
-    $builddir = "$($root)/build/$($builddir_leaf)/$($libroot)"
-    mkdir $builddir -Force | Out-Null
-    if (-not (Test-Path $builddir)) {
-        Write-Host "failed to make directory $($builddir)"
-        $Script:function_result = $false
-        return
-    }
-    
+    $libname = "ogg"
+    make_builddir $libname
+    $builddir = $Script:function_result
     cd $builddir
 
-    $Script:function_result = cmake "$($root)/$($libroot)" -G"$($Generator)" `
+    $Script:function_result = cmake "$($root)/$($libname)" -G"$($Generator)" `
         -DCMAKE_INSTALL_PREFIX="$($builddir)/install" `
         -DBUILD_SHARED_LIBS=TRUE
 
     if (-not $Script:function_result) {
-        Write-Host "failed to configure $($libroot)" -ForegroundColor Red
+        Write-Host "failed to configure $($libname)" -ForegroundColor Red
         return
     }
 
     $Script:function_result = cmake --build . --config release --target install
 
     if (-not $Script:function_result) {
-        Write-Host "failed to build $($libroot)" -ForegroundColor Red
+        Write-Host "failed to build $($libname)" -ForegroundColor Red
     }
 }
     
 function build_vorbis {
-    $libroot = "vorbis"
-    $builddir = "$($root)/build/$($builddir_leaf)/$($libroot)"
-    mkdir $builddir -Force | Out-Null
-    if (-not (Test-Path $builddir)) {
-        Write-Host "failed to make directory $($builddir)"
-        $Script:function_result = $false
-        return
-    }
-    
+    $libname = "vorbis"
+    make_builddir $libname
+    $builddir = $Script:function_result
     cd $builddir
 
     $ogg = "$($root)/build/$($builddir_leaf)/ogg/install"
 
-    $Script:function_result = cmake "$($root)/$($libroot)" -G"$($Generator)" `
+    $Script:function_result = cmake "$($root)/$($libname)" -G"$($Generator)" `
         -DCMAKE_INSTALL_PREFIX="$($builddir)/install" `
         -DBUILD_SHARED_LIBS=TRUE `
         -DOGG_INCLUDE_DIRS="$($ogg)/include" `
         -DOGG_LIBRARIES="$($ogg)/lib/ogg.lib"
 
     if (-not $Script:function_result) {
-        Write-Host "failed to configure $($libroot)" -ForegroundColor Red
+        Write-Host "failed to configure $($libname)" -ForegroundColor Red
         return
     }
 
     $Script:function_result = cmake --build . --config release --target install
 
     if (-not $Script:function_result) {
-        Write-Host "failed to build $($libroot)" -ForegroundColor Red
+        Write-Host "failed to build $($libname)" -ForegroundColor Red
     }
 }
     
 function build_openal {
-    $libroot = "openal"
-    $builddir = "$($root)/build/$($builddir_leaf)/$($libroot)"
-    mkdir $builddir -Force | Out-Null
-    if (-not (Test-Path $builddir)) {
-        Write-Host "failed to make directory $($builddir)"
-        $Script:function_result = $false
-        return
-    }
-    
+    $libname = "openal"
+    make_builddir $libname
+    $builddir = $Script:function_result
     cd $builddir
 
-    $Script:function_result = cmake "$($root)/$($libroot)" -G"$($Generator)" `
+    $Script:function_result = cmake "$($root)/$($libname)" -G"$($Generator)" `
         -DCMAKE_INSTALL_PREFIX="$($builddir)/install" `
         -DALSOFT_UTILS=FALSE -DALSOFT_NO_CONFIG_UTIL=TRUE `
         -DALSOFT_EXAMPLES=FALSE -DALSOFT_TESTS=FALSE `
@@ -144,41 +127,35 @@ function build_openal {
         -DALSOFT_AMBDEC_PRESETS=FALSE
 
     if (-not $Script:function_result) {
-        Write-Host "failed to configure $($libroot)" -ForegroundColor Red
+        Write-Host "failed to configure $($libname)" -ForegroundColor Red
         return
     }
 
     $Script:function_result = cmake --build . --config release --target install
 
     if (-not $Script:function_result) {
-        Write-Host "failed to build $($libroot)" -ForegroundColor Red
+        Write-Host "failed to build $($libname)" -ForegroundColor Red
     }
 }
     
 function build_sqlite3 {
-    $libroot = "sqlite3"
-    $builddir = "$($root)/build/$($builddir_leaf)/$($libroot)"
-    mkdir $builddir -Force | Out-Null
-    if (-not (Test-Path $builddir)) {
-        Write-Host "failed to make directory $($builddir)"
-        $Script:function_result = $false
-        return
-    }
-    
+    $libname = "sqlite3"
+    make_builddir $libname
+    $builddir = $Script:function_result
     cd $builddir
 
-    $Script:function_result = cmake "$($root)/$($libroot)" -G"$($Generator)" `
+    $Script:function_result = cmake "$($root)/$($libname)" -G"$($Generator)" `
         -DCMAKE_INSTALL_PREFIX="$($builddir)/install"
 
     if (-not $Script:function_result) {
-        Write-Host "failed to configure $($libroot)" -ForegroundColor Red
+        Write-Host "failed to configure $($libname)" -ForegroundColor Red
         return
     }
 
     $Script:function_result = cmake --build . --config release --target install
 
     if (-not $Script:function_result) {
-        Write-Host "failed to build $($libroot)" -ForegroundColor Red
+        Write-Host "failed to build $($libname)" -ForegroundColor Red
     }
 }
 

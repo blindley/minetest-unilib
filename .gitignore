@@ -1,3 +1,2 @@
-/build/*
-/install/*
-/tmp/*
+build/*
+tmp/*

@@ -154,6 +154,33 @@ function build_openal {
         Write-Host "failed to build $($libroot)" -ForegroundColor Red
     }
 }
+    
+function build_sqlite3 {
+    $libroot = "sqlite3"
+    $builddir = "$($root)/build/$($builddir_leaf)/$($libroot)"
+    mkdir $builddir -Force | Out-Null
+    if (-not (Test-Path $builddir)) {
+        Write-Host "failed to make directory $($builddir)"
+        $Script:function_result = $false
+        return
+    }
+    
+    cd $builddir
+
+    $Script:function_result = cmake "$($root)/$($libroot)" -G"$($Generator)" `
+        -DCMAKE_INSTALL_PREFIX="$($builddir)/install"
+
+    if (-not $Script:function_result) {
+        Write-Host "failed to configure $($libroot)" -ForegroundColor Red
+        return
+    }
+
+    $Script:function_result = cmake --build . --config release --target install
+
+    if (-not $Script:function_result) {
+        Write-Host "failed to build $($libroot)" -ForegroundColor Red
+    }
+}
 
 function build_all {
     if ($Generator.Length -eq 0) {
@@ -181,6 +208,10 @@ function build_all {
 
     Write-Host "building openal" -ForegroundColor Yellow
     build_openal
+    if (-not $Script:function_result) { return }
+
+    Write-Host "building sqlite3" -ForegroundColor Yellow
+    build_sqlite3
     if (-not $Script:function_result) { return }
 
     $Script:function_result = $true

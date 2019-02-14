@@ -13,3 +13,6 @@
 [submodule "openal"]
 	path = openal
 	url = https://github.com/kcat/openal-soft
+[submodule "sqlite3"]
+	path = sqlite3
+	url = https://github.com/blindley/sqlite3-cmake.git

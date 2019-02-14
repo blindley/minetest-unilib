@@ -10,3 +10,6 @@
 [submodule "vorbis"]
 	path = vorbis
 	url = https://github.com/xiph/vorbis
+[submodule "openal"]
+	path = openal
+	url = https://github.com/kcat/openal-soft

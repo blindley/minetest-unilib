@@ -2,3 +2,5 @@ build/*
 tmp/*
 branches/*
 cache.json
+__pycache__/*
+*.pyc

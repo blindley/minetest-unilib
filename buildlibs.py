@@ -13,7 +13,8 @@ def install_directory(generator):
 
 def make_builddir(generator, libname):
     builddir = generator_build_directory(generator) + "/" + libname
-    result = subprocess.run(["cmake", "-E", "make_directory", builddir])
+    result = subprocess.run(["cmake", "-E", "make_directory", builddir],
+        stdout=global_stdout_log, stderr=global_stderr_log)
     if not result.returncode == 0:
         print("failed to make directory %s" % builddir)
         return False
@@ -21,7 +22,8 @@ def make_builddir(generator, libname):
 
 def build_and_install(builddir, libname):
     result = subprocess.run(
-        ["cmake", "--build", builddir, "--config", "release", "--target", "install"]
+        ["cmake", "--build", builddir, "--config", "release", "--target", "install"],
+        stdout=global_stdout_log, stderr=global_stderr_log
     )
     if not result.returncode == 0:
         print("failed to build %s" % libname)
@@ -40,7 +42,8 @@ def configure_and_build_and_install(generator, libname, config_options):
          "cmake", libdir, "-G", generator,
          '-DCMAKE_INSTALL_PREFIX=' + install_directory(generator)
         ]
-        + config_options
+        + config_options,
+        stdout=global_stdout_log, stderr=global_stderr_log
     )
 
     if not result.returncode == 0:
@@ -61,7 +64,8 @@ def build_zlib(generator):
     # undo zlib/CMakeLists.txt renaming zconf.h, to keep the repository unmodified
     oldname = unilib_root_directory() + "/zlib/zconf.h.included"
     newname = unilib_root_directory() + "/zlib/zconf.h"
-    subprocess.run(["cmake", "-E", "rename", oldname, newname])
+    subprocess.run(["cmake", "-E", "rename", oldname, newname],
+        stdout=global_stdout_log, stderr=global_stderr_log)
 
     return result
     
@@ -76,8 +80,7 @@ def build_vorbis(generator):
     install = install_directory(generator)
     return configure_and_build_and_install(generator, libname, [
         "-DBUILD_SHARED_LIBS=TRUE",
-        '-DOGG_INCLUDE_DIRS=' + install + '/include',
-        '-DOGG_LIBRARIES=' + install + '/lib/ogg.lib'
+        "-DOGG_ROOT=" + install
     ])
     
 def build_openal(generator):
@@ -124,8 +127,18 @@ if not "cmake_generators" in global_cache:
 if len(global_cache["cmake_generators"]) == 0:
     print("no generators selected, run config.py")
 
+global_stdout_log = open(unilib_root_directory() + "/stdout.log", "w")
+global_stderr_log = open(unilib_root_directory() + "/stderr.log", "w")
+
+global_there_were_errors = False
 for gen in global_cache["cmake_generators"]:
     print("building for %s" % gen)
     if not build_all(gen):
+        global_there_were_errors = True
         print("building for %s failed" % gen)
 
+global_stdout_log.close()
+global_stderr_log.close()
+
+if global_there_were_errors:
+    print("there were errors, check stderr.log")

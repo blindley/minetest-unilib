@@ -1,18 +1,21 @@
 [submodule "irrlicht"]
-	path = irrlicht
+	path = lib/irrlicht
 	url = https://github.com/blindley/irrlicht-cmake.git
 [submodule "zlib"]
-	path = zlib
+	path = lib/zlib
 	url = https://github.com/madler/zlib
 [submodule "ogg"]
-	path = ogg
+	path = lib/ogg
 	url = https://github.com/xiph/ogg
 [submodule "vorbis"]
-	path = vorbis
+	path = lib/vorbis
 	url = https://github.com/xiph/vorbis
 [submodule "openal"]
-	path = openal
+	path = lib/openal
 	url = https://github.com/kcat/openal-soft
 [submodule "sqlite3"]
-	path = sqlite3
+	path = lib/sqlite3
 	url = https://github.com/blindley/sqlite3-cmake.git
+[submodule "curl"]
+	path = lib/curl
+	url = https://github.com/curl/curl.git

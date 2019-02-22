@@ -6,3 +6,5 @@ __pycache__/*
 *.pyc
 stdout.log
 stderr.log
+lib/prebuilt/*
+lib/build/*

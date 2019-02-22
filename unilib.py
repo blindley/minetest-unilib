@@ -98,9 +98,13 @@ def library_source_directory(libname):
     return "%s/lib/%s" % (unilib_root(), libname)
 
 def configure_and_build_and_install(generator, libname, config_options):
-    builddir = library_build_directory(generator, libname)
-    if not os.path.exists(builddir):
-        os.makedirs(builddir)
+    builddir = os.path.normpath(library_build_directory(generator, libname))
+    if os.path.exists(builddir):
+        print("to rebuild %s, delete '%s'" % (libname, builddir))
+        return True
+
+    print("building %s" % libname)
+    os.makedirs(builddir)
     if not os.path.exists(builddir):
         print("could not make %s" % builddir)
         return False
@@ -149,7 +153,8 @@ def build_zlib(generator):
     zlib_source = library_source_directory("zlib")
     oldname = "%s/zconf.h.included" % zlib_source
     newname = "%s/zconf.h" % zlib_source
-    os.replace(oldname, newname)
+    if os.path.exists(oldname):
+        os.replace(oldname, newname)
     return result
     
 def build_ogg(generator):
@@ -184,25 +189,13 @@ def build_sqlite3(generator):
 
 def do_build_all(generator):
     print("building with '%s'" % generator)
-    print("building irrlicht")
-    if not build_irrlicht(generator):
-        return False
-    print("building zlib")
-    if not build_zlib(generator):
-        return False
-    print("building ogg")
-    if not build_ogg(generator):
-        return False
-    print("building vorbis")
-    if not build_vorbis(generator):
-        return False
-    print("building openal")
-    if not build_openal(generator):
-        return False
-    print("building sqlite3")
-    if not build_sqlite3(generator):
-        return False
-    return True
+    return (build_irrlicht(generator) and
+           build_zlib(generator) and
+           build_ogg(generator) and
+           build_vorbis(generator) and
+           build_openal(generator) and
+           build_sqlite3(generator)
+        )
 
 def build_libraries():
     generator = input("Select generator: ")
